@@ -6,6 +6,7 @@ import kz.edu.mobileoperator.model.Customer;
 import kz.edu.mobileoperator.model.CustomerStatus;
 import kz.edu.mobileoperator.repository.CustomerRepository;
 import kz.edu.mobileoperator.service.CustomerService;
+import kz.edu.mobileoperator.service.RecentActivityService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +19,27 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
+    private final RecentActivityService recentActivityService;
+
+    public CustomerServiceImpl(CustomerRepository customerRepository,
+                               RecentActivityService recentActivityService) {
         this.customerRepository = customerRepository;
+        this.recentActivityService = recentActivityService;
     }
 
     @Override
     public Customer create(Customer customer) {
         customer.setId(null);
         customer.setStatus(CustomerStatus.ACTIVE);
-        return customerRepository.save(customer);
+        Customer saved = customerRepository.save(customer);
+        // Логируем создание нового клиента для блока "Recent Activity"
+        recentActivityService.record(
+                "CUSTOMER_CREATED",
+                "Customer created: " + saved.getFullName(),
+                "CUSTOMER",
+                saved.getId()
+        );
+        return saved;
     }
 
     @Override
@@ -35,7 +48,14 @@ public class CustomerServiceImpl implements CustomerService {
         existing.setFullName(updatedCustomer.getFullName());
         existing.setPhoneNumber(updatedCustomer.getPhoneNumber());
         existing.setDocumentNumber(updatedCustomer.getDocumentNumber());
-        return customerRepository.save(existing);
+        Customer saved = customerRepository.save(existing);
+        recentActivityService.record(
+                "CUSTOMER_UPDATED",
+                "Customer updated: " + saved.getFullName(),
+                "CUSTOMER",
+                saved.getId()
+        );
+        return saved;
     }
 
     @Override
@@ -55,14 +75,54 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer block(Long id) {
         Customer customer = getById(id);
         customer.setStatus(CustomerStatus.BLOCKED);
-        return customerRepository.save(customer);
+        Customer saved = customerRepository.save(customer);
+        recentActivityService.record(
+                "CUSTOMER_STATUS_CHANGED",
+                "Customer blocked: " + saved.getFullName(),
+                "CUSTOMER",
+                saved.getId()
+        );
+        return saved;
     }
 
     @Override
     public Customer unblock(Long id) {
         Customer customer = getById(id);
         customer.setStatus(CustomerStatus.ACTIVE);
-        return customerRepository.save(customer);
+        Customer saved = customerRepository.save(customer);
+        recentActivityService.record(
+                "CUSTOMER_STATUS_CHANGED",
+                "Customer unblocked: " + saved.getFullName(),
+                "CUSTOMER",
+                saved.getId()
+        );
+        return saved;
+    }
+
+    @Override
+    public Customer updateStatus(Long id, CustomerStatus status) {
+        Customer customer = getById(id);
+        customer.setStatus(status);
+        Customer saved = customerRepository.save(customer);
+        recentActivityService.record(
+                "CUSTOMER_STATUS_CHANGED",
+                "Customer status set to " + status + ": " + saved.getFullName(),
+                "CUSTOMER",
+                saved.getId()
+        );
+        return saved;
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        Customer customer = getById(id);
+        customerRepository.delete(customer);
+        recentActivityService.record(
+                "CUSTOMER_DELETED",
+                "Customer deleted: " + customer.getFullName(),
+                "CUSTOMER",
+                customer.getId()
+        );
     }
 
     @Override

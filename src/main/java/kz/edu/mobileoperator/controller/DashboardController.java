@@ -3,12 +3,12 @@ package kz.edu.mobileoperator.controller;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import kz.edu.mobileoperator.dto.DashboardSummaryDto;
+import kz.edu.mobileoperator.dto.RecentActivityDto;
 import kz.edu.mobileoperator.dto.SubscriptionStatsDto;
 import kz.edu.mobileoperator.model.Subscription;
 import kz.edu.mobileoperator.model.SubscriptionStatus;
@@ -16,8 +16,10 @@ import kz.edu.mobileoperator.model.TariffStatus;
 import kz.edu.mobileoperator.repository.CustomerRepository;
 import kz.edu.mobileoperator.repository.SubscriptionRepository;
 import kz.edu.mobileoperator.repository.TariffRepository;
+import kz.edu.mobileoperator.service.RecentActivityService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,13 +32,16 @@ public class DashboardController {
     private final CustomerRepository customerRepository;
     private final TariffRepository tariffRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final RecentActivityService recentActivityService;
 
     public DashboardController(CustomerRepository customerRepository,
                                TariffRepository tariffRepository,
-                               SubscriptionRepository subscriptionRepository) {
+                               SubscriptionRepository subscriptionRepository,
+                               RecentActivityService recentActivityService) {
         this.customerRepository = customerRepository;
         this.tariffRepository = tariffRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.recentActivityService = recentActivityService;
     }
 
     /**
@@ -71,7 +76,8 @@ public class DashboardController {
      * "activeCount" — количество активных подписок к концу месяца.
      */
     @GetMapping("/subscriptions-stats")
-    public List<SubscriptionStatsDto> getSubscriptionsStats() {
+    public List<SubscriptionStatsDto> getSubscriptionsStats(
+            @RequestParam(name = "period", defaultValue = "monthly") String period) {
         List<Subscription> allSubscriptions = subscriptionRepository.findAll();
 
         if (allSubscriptions.isEmpty()) {
@@ -80,7 +86,14 @@ public class DashboardController {
 
         LocalDate now = LocalDate.now();
         YearMonth currentMonth = YearMonth.from(now);
-        YearMonth startMonth = currentMonth.minusMonths(11); // последние 12 месяцев
+        int monthsBack;
+        switch (period.toLowerCase()) {
+            case "quarterly" -> monthsBack = 8 * 3 - 1; // 8 кварталов
+            case "yearly" -> monthsBack = 5 * 12 - 1;   // 5 лет
+            default -> monthsBack = 11;                 // 12 месяцев
+        }
+
+        YearMonth startMonth = currentMonth.minusMonths(monthsBack);
 
         Map<YearMonth, List<Subscription>> byStartMonth = allSubscriptions.stream()
                 .filter(s -> s.getStartDate() != null)
@@ -118,7 +131,18 @@ public class DashboardController {
             ym = ym.plusMonths(1);
         }
 
+        // Для упрощения: для quarterly/yearly агрегируем месяца в более крупные периоды на клиенте,
+        // поэтому здесь всегда возвращаем помесячные данные.
         return result;
+    }
+
+    /**
+     * Последние N событий активности для блока "Recent Activity".
+     */
+    @GetMapping("/recent-activity")
+    public List<RecentActivityDto> getRecentActivity(
+            @RequestParam(name = "limit", defaultValue = "5") int limit) {
+        return recentActivityService.getRecent(limit);
     }
 }
 

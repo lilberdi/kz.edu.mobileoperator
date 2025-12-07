@@ -2,6 +2,7 @@ package kz.edu.mobileoperator.service;
 
 import java.util.List;
 import kz.edu.mobileoperator.model.Customer;
+import kz.edu.mobileoperator.model.CustomerStatus;
 
 /**
  * Сервисный слой для работы с клиентами.
@@ -21,6 +22,16 @@ public interface CustomerService {
     Customer block(Long id);
 
     Customer unblock(Long id);
+
+    /**
+     * Изменить статус клиента (ACTIVE/BLOCKED).
+     */
+    Customer updateStatus(Long id, CustomerStatus status);
+
+    /**
+     * Удалить клиента по идентификатору.
+     */
+    void deleteById(Long id);
 
     /**
      * Простой вариант поиска клиентов по части ФИО или номеру телефона.

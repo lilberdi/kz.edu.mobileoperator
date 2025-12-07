@@ -6,6 +6,7 @@ let tariffsCache = [];
 let customersCache = [];
 let subscriptionsCache = [];
 let subscriptionsChart = null;
+let currentLang = 'en';
 
 // --- Simple front-end i18n dictionary for EN / RU / KK ---
 // Only keys used in data-i18n-key / data-i18n-placeholder are defined here.
@@ -18,6 +19,7 @@ const translations = {
         'nav.tariffs': 'Tariffs',
         'nav.customers': 'Customers',
         'nav.subscriptions': 'Subscriptions',
+        'nav.logout': 'Logout',
         'nav.help': 'Help & Support',
         'sidebar.mainNav': 'Main navigation',
         'sidebar.other': 'Other',
@@ -36,14 +38,21 @@ const translations = {
         'dashboard.periodYearly': 'Yearly',
         'dashboard.recentActivity': 'Recent Activity',
         'dashboard.viewAll': 'View all',
-        'activity.item1.title': 'New customer Aidana K. created',
-        'activity.item1.time': '10 minutes ago',
-        'activity.item2.title': 'Tariff START_10 updated',
-        'activity.item2.time': '45 minutes ago',
-        'activity.item3.title': 'New subscription for Aslan B.',
-        'activity.item3.time': '2 hours ago',
-        'activity.item4.title': 'Payment received from Marat S.',
-        'activity.item4.time': '5 hours ago',
+        'dashboard.noActivity': 'No recent events yet.',
+        'common.delete': 'Delete',
+        'confirm.tariffDelete': 'Delete this tariff?',
+        'confirm.customerDelete': 'Delete this customer?',
+        'confirm.subscriptionDelete': 'Delete this subscription?',
+        'alerts.tariffStatusUpdated': 'Tariff status updated',
+        'alerts.tariffDeleted': 'Tariff deleted',
+        'alerts.customerStatusUpdated': 'Customer status updated',
+        'alerts.customerDeleted': 'Customer deleted',
+        'alerts.subscriptionStatusUpdated': 'Subscription status updated',
+        'alerts.subscriptionDeleted': 'Subscription deleted',
+        'time.justNow': 'just now',
+        'time.minutesAgo': '{n} min ago',
+        'time.hoursAgo': '{n} h ago',
+        'time.daysAgo': '{n} d ago',
         'tariffs.title': 'Tariffs',
         'tariffs.subtitle': 'Create and manage Zolik mobile tariffs.',
         'tariffs.createTitle': 'Create Tariff',
@@ -66,6 +75,10 @@ const translations = {
         'tariffs.table.sms': 'SMS',
         'tariffs.table.gb': 'GB',
         'tariffs.table.status': 'Status',
+        'tariffs.table.actions': 'Actions',
+        'tariffs.actions.archive': 'Archive',
+        'tariffs.actions.activate': 'Activate',
+        'tariffs.table.actions': 'Actions',
         'customers.title': 'Customers',
         'customers.createTitle': 'Create Customer',
         'customers.form.phone': 'Phone number',
@@ -76,6 +89,10 @@ const translations = {
         'customers.table.name': 'Full name',
         'customers.table.phone': 'Phone',
         'customers.table.status': 'Status',
+        'customers.table.actions': 'Actions',
+        'customers.actions.block': 'Block',
+        'customers.actions.unblock': 'Unblock',
+        'customers.table.actions': 'Actions',
         'subscriptions.title': 'Subscriptions',
         'subscriptions.connectTitle': 'Connect Tariff to Customer',
         'subscriptions.form.customer': 'Customer',
@@ -87,7 +104,10 @@ const translations = {
         'subscriptions.table.tariff': 'Tariff',
         'subscriptions.table.startDate': 'Start date',
         'subscriptions.table.status': 'Status',
-        'subscriptions.table.balance': 'Balance'
+        'subscriptions.table.balance': 'Balance',
+        'subscriptions.table.actions': 'Actions',
+        'subscriptions.actions.terminate': 'Terminate',
+        'subscriptions.table.actions': 'Actions'
     },
     ru: {
         'brand.name': 'Zolik',
@@ -97,6 +117,7 @@ const translations = {
         'nav.tariffs': 'Тарифы',
         'nav.customers': 'Клиенты',
         'nav.subscriptions': 'Подписки',
+        'nav.logout': 'Выход',
         'nav.help': 'Помощь и поддержка',
         'sidebar.mainNav': 'Основное меню',
         'sidebar.other': 'Прочее',
@@ -115,14 +136,21 @@ const translations = {
         'dashboard.periodYearly': 'По годам',
         'dashboard.recentActivity': 'Недавняя активность',
         'dashboard.viewAll': 'Показать всё',
-        'activity.item1.title': 'Создан новый клиент Айдана К.',
-        'activity.item1.time': '10 минут назад',
-        'activity.item2.title': 'Тариф START_10 обновлён',
-        'activity.item2.time': '45 минут назад',
-        'activity.item3.title': 'Новая подписка для Аслана Б.',
-        'activity.item3.time': '2 часа назад',
-        'activity.item4.title': 'Платёж получен от Марата С.',
-        'activity.item4.time': '5 часов назад',
+        'dashboard.noActivity': 'Пока нет событий.',
+        'common.delete': 'Удалить',
+        'confirm.tariffDelete': 'Удалить этот тариф?',
+        'confirm.customerDelete': 'Удалить этого клиента?',
+        'confirm.subscriptionDelete': 'Удалить эту подписку?',
+        'alerts.tariffStatusUpdated': 'Статус тарифа изменён',
+        'alerts.tariffDeleted': 'Тариф удалён',
+        'alerts.customerStatusUpdated': 'Статус клиента изменён',
+        'alerts.customerDeleted': 'Клиент удалён',
+        'alerts.subscriptionStatusUpdated': 'Статус подписки изменён',
+        'alerts.subscriptionDeleted': 'Подписка удалена',
+        'time.justNow': 'только что',
+        'time.minutesAgo': '{n} мин назад',
+        'time.hoursAgo': '{n} ч назад',
+        'time.daysAgo': '{n} дн назад',
         'tariffs.title': 'Тарифы',
         'tariffs.subtitle': 'Создание и управление тарифами Zolik.',
         'tariffs.createTitle': 'Создать тариф',
@@ -145,6 +173,10 @@ const translations = {
         'tariffs.table.sms': 'SMS',
         'tariffs.table.gb': 'ГБ',
         'tariffs.table.status': 'Статус',
+        'tariffs.table.actions': 'Действия',
+        'tariffs.actions.archive': 'В архив',
+        'tariffs.actions.activate': 'Активировать',
+        'tariffs.table.actions': 'Действия',
         'customers.title': 'Клиенты',
         'customers.createTitle': 'Создать клиента',
         'customers.form.phone': 'Номер телефона',
@@ -155,6 +187,10 @@ const translations = {
         'customers.table.name': 'ФИО',
         'customers.table.phone': 'Телефон',
         'customers.table.status': 'Статус',
+        'customers.table.actions': 'Действия',
+        'customers.actions.block': 'Заблокировать',
+        'customers.actions.unblock': 'Разблокировать',
+        'customers.table.actions': 'Действия',
         'subscriptions.title': 'Подписки',
         'subscriptions.connectTitle': 'Подключить тариф клиенту',
         'subscriptions.form.customer': 'Клиент',
@@ -166,7 +202,9 @@ const translations = {
         'subscriptions.table.tariff': 'Тариф',
         'subscriptions.table.startDate': 'Дата начала',
         'subscriptions.table.status': 'Статус',
-        'subscriptions.table.balance': 'Баланс'
+        'subscriptions.table.balance': 'Баланс',
+        'subscriptions.table.actions': 'Действия',
+        'subscriptions.actions.terminate': 'Расторгнуть',
     },
     kk: {
         'brand.name': 'Zolik',
@@ -176,6 +214,7 @@ const translations = {
         'nav.tariffs': 'Тарифтер',
         'nav.customers': 'Клиенттер',
         'nav.subscriptions': 'Жазылымдар',
+        'nav.logout': 'Шығу',
         'nav.help': 'Көмек және қолдау',
         'sidebar.mainNav': 'Негізгі мәзір',
         'sidebar.other': 'Басқа',
@@ -194,14 +233,21 @@ const translations = {
         'dashboard.periodYearly': 'Жылдар',
         'dashboard.recentActivity': 'Соңғы белсенділік',
         'dashboard.viewAll': 'Барлығын көру',
-        'activity.item1.title': 'Жаңа клиент Айдана К. тіркелді',
-        'activity.item1.time': '10 минут бұрын',
-        'activity.item2.title': 'START_10 тарифі жаңартылды',
-        'activity.item2.time': '45 минут бұрын',
-        'activity.item3.title': 'Аслан Б. үшін жаңа жазылым',
-        'activity.item3.time': '2 сағат бұрын',
-        'activity.item4.title': 'Марат С.-дан төлем алынды',
-        'activity.item4.time': '5 сағат бұрын',
+        'dashboard.noActivity': 'Әзірге оқиғалар жоқ.',
+        'common.delete': 'Жою',
+        'confirm.tariffDelete': 'Бұл тарифті жою?',
+        'confirm.customerDelete': 'Бұл клиентті жою?',
+        'confirm.subscriptionDelete': 'Бұл жазылымды жою?',
+        'alerts.tariffStatusUpdated': 'Тариф статусы өзгертілді',
+        'alerts.tariffDeleted': 'Тариф жойылды',
+        'alerts.customerStatusUpdated': 'Клиент статусы өзгертілді',
+        'alerts.customerDeleted': 'Клиент жойылды',
+        'alerts.subscriptionStatusUpdated': 'Жазылым статусы өзгертілді',
+        'alerts.subscriptionDeleted': 'Жазылым жойылды',
+        'time.justNow': 'қазір ғана',
+        'time.minutesAgo': '{n} мин бұрын',
+        'time.hoursAgo': '{n} сағ бұрын',
+        'time.daysAgo': '{n} күн бұрын',
         'tariffs.title': 'Тарифтер',
         'tariffs.subtitle': 'Zolik тарифтерін құру және басқару.',
         'tariffs.createTitle': 'Тариф құру',
@@ -224,6 +270,9 @@ const translations = {
         'tariffs.table.sms': 'SMS',
         'tariffs.table.gb': 'ГБ',
         'tariffs.table.status': 'Статус',
+        'tariffs.table.actions': 'Әрекеттер',
+        'tariffs.actions.archive': 'Архивке',
+        'tariffs.actions.activate': 'Белсенді ету',
         'customers.title': 'Клиенттер',
         'customers.createTitle': 'Клиент құру',
         'customers.form.phone': 'Телефон нөмірі',
@@ -234,6 +283,9 @@ const translations = {
         'customers.table.name': 'Аты-жөні',
         'customers.table.phone': 'Телефон',
         'customers.table.status': 'Статус',
+        'customers.table.actions': 'Әрекеттер',
+        'customers.actions.block': 'Блоктау',
+        'customers.actions.unblock': 'Блокты ашу',
         'subscriptions.title': 'Жазылымдар',
         'subscriptions.connectTitle': 'Тарифті клиентке қосу',
         'subscriptions.form.customer': 'Клиент',
@@ -245,16 +297,34 @@ const translations = {
         'subscriptions.table.tariff': 'Тариф',
         'subscriptions.table.startDate': 'Басталу күні',
         'subscriptions.table.status': 'Статус',
-        'subscriptions.table.balance': 'Баланс'
+        'subscriptions.table.balance': 'Баланс',
+        'subscriptions.table.actions': 'Әрекеттер',
+        'subscriptions.actions.terminate': 'Тоқтату'
     }
 };
+
+/**
+ * Возвращает словарь переводов для указанного языка.
+ */
+function getDict(lang) {
+    return translations[lang] || translations.en;
+}
+
+/**
+ * Получить перевод по ключу для текущего языка.
+ */
+function t(key, fallback) {
+    const dict = getDict(currentLang);
+    return dict[key] || fallback || key;
+}
 
 /**
  * Applies translations for the given language to all elements
  * that have data-i18n-key / data-i18n-placeholder attributes.
  */
 function applyTranslations(lang) {
-    const dict = translations[lang] || translations.en;
+    currentLang = lang;
+    const dict = getDict(lang);
 
     document.documentElement.lang = lang;
 
@@ -428,14 +498,94 @@ async function loadDashboardSummary() {
 }
 
 /**
- * Loads subscription stats from /api/dashboard/subscriptions-stats and draws Chart.js line chart.
+ * Loads recent activity items from backend and renders the card.
  */
-async function loadSubscriptionsChart() {
+async function loadRecentActivity() {
+    try {
+        const response = await fetch('/api/dashboard/recent-activity?limit=5');
+        if (!response.ok) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        const items = await response.json();
+        renderRecentActivity(items);
+    } catch (error) {
+        showAlert('error', 'Failed to load recent activity: ' + error.message);
+    }
+}
+
+/**
+ * Renders the Recent Activity list using data from backend.
+ */
+function renderRecentActivity(items) {
+    const container = document.getElementById('recentActivityList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!items || items.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'text-xs text-gray-400';
+        li.textContent = t('dashboard.noActivity', 'No recent events yet.');
+        container.appendChild(li);
+        return;
+    }
+
+    items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start space-x-3';
+
+        let icon = 'user';
+        let bgClass = 'bg-gray-100';
+        let iconColor = 'text-gray-500';
+        if (item.entityType === 'CUSTOMER') {
+            icon = 'user-plus';
+            bgClass = 'bg-indigo-50';
+            iconColor = 'text-indigo-600';
+        } else if (item.entityType === 'TARIFF') {
+            icon = 'layers';
+            bgClass = 'bg-amber-50';
+            iconColor = 'text-amber-600';
+        } else if (item.entityType === 'SUBSCRIPTION') {
+            icon = 'repeat';
+            bgClass = 'bg-emerald-50';
+            iconColor = 'text-emerald-600';
+        }
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = `mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full ${bgClass}`;
+        iconSpan.innerHTML = `<i data-feather="${icon}" class="h-3 w-3 ${iconColor}"></i>`;
+
+        const textWrapper = document.createElement('div');
+        const title = document.createElement('p');
+        title.className = 'font-medium text-gray-900';
+        title.textContent = item.message;
+        const time = document.createElement('p');
+        time.className = 'text-xs text-gray-500';
+        time.textContent = formatTimeAgo(new Date(item.timestamp));
+
+        textWrapper.appendChild(title);
+        textWrapper.appendChild(time);
+
+        li.appendChild(iconSpan);
+        li.appendChild(textWrapper);
+        container.appendChild(li);
+    });
+
+    if (window.feather) {
+        window.feather.replace();
+    }
+}
+/**
+ * Loads subscription stats from /api/dashboard/subscriptions-stats and draws Chart.js line chart.
+ * @param {'monthly'|'quarterly'|'yearly'} period
+ */
+async function loadSubscriptionsChart(period = 'monthly') {
     const canvas = document.getElementById('subscriptionsChart');
     if (!canvas || !window.Chart) return;
 
     try {
-        const response = await fetch('/api/dashboard/subscriptions-stats');
+        const response = await fetch(`/api/dashboard/subscriptions-stats?period=${encodeURIComponent(period)}`);
         if (!response.ok) {
             const errorMsg = await parseError(response);
             showAlert('error', errorMsg);
@@ -537,6 +687,11 @@ function renderTariffsTable() {
                     ? 'bg-emerald-50 text-emerald-700'
                     : 'bg-gray-100 text-gray-600';
 
+            const toggleLabel = tariff.status === 'ACTIVE'
+                ? t('tariffs.actions.archive', 'Archive')
+                : t('tariffs.actions.activate', 'Activate');
+            const toggleStatus = tariff.status === 'ACTIVE' ? 'ARCHIVED' : 'ACTIVE';
+
             tr.innerHTML = `
                 <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">${tariff.code}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-700">${tariff.name}</td>
@@ -549,7 +704,23 @@ function renderTariffsTable() {
                         ${tariff.status}
                     </span>
                 </td>
+                <td class="px-3 py-2 whitespace-nowrap text-xs text-right space-x-1">
+                    <button class="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] text-gray-700 hover:bg-gray-50"
+                            data-action="toggle-status">
+                        ${toggleLabel}
+                    </button>
+                    <button class="inline-flex items-center rounded-md border border-rose-200 bg-white px-2 py-0.5 text-[11px] text-rose-600 hover:bg-rose-50"
+                            data-action="delete">
+                        ${t('common.delete', 'Delete')}
+                    </button>
+                </td>
             `;
+
+            const toggleBtn = tr.querySelector('button[data-action="toggle-status"]');
+            const deleteBtn = tr.querySelector('button[data-action="delete"]');
+            toggleBtn.addEventListener('click', () => changeTariffStatus(tariff.id, toggleStatus));
+            deleteBtn.addEventListener('click', () => deleteTariff(tariff.id));
+
             tbody.appendChild(tr);
         });
 }
@@ -639,6 +810,11 @@ function renderCustomersTable() {
 
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-gray-50';
+            const toggleLabel = customer.status === 'ACTIVE'
+                ? t('customers.actions.block', 'Block')
+                : t('customers.actions.unblock', 'Unblock');
+            const toggleStatus = customer.status === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
+
             tr.innerHTML = `
                 <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">${customer.id}</td>
                 <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-700">${customer.fullName}</td>
@@ -650,7 +826,23 @@ function renderCustomersTable() {
                         ${customer.status}
                     </span>
                 </td>
+                <td class="px-3 py-2 whitespace-nowrap text-xs text-right space-x-1">
+                    <button class="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] text-gray-700 hover:bg-gray-50"
+                            data-action="toggle-status">
+                        ${toggleLabel}
+                    </button>
+                    <button class="inline-flex items-center rounded-md border border-rose-200 bg-white px-2 py-0.5 text-[11px] text-rose-600 hover:bg-rose-50"
+                            data-action="delete">
+                        ${t('common.delete', 'Delete')}
+                    </button>
+                </td>
             `;
+
+            const toggleBtn = tr.querySelector('button[data-action="toggle-status"]');
+            const deleteBtn = tr.querySelector('button[data-action="delete"]');
+            toggleBtn.addEventListener('click', () => changeCustomerStatus(customer.id, toggleStatus));
+            deleteBtn.addEventListener('click', () => deleteCustomer(customer.id));
+
             tbody.appendChild(tr);
         });
 }
@@ -794,6 +986,8 @@ function renderSubscriptionsTable() {
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
+        const canTerminate = s.status !== 'TERMINATED';
+
         tr.innerHTML = `
             <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">${s.id}</td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-700">${s.customerId}</td>
@@ -805,7 +999,22 @@ function renderSubscriptionsTable() {
                 </span>
             </td>
             <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-700">₸${s.currentBalance}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-right space-x-1">
+                ${canTerminate ? `<button class="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] text-gray-700 hover:bg-gray-50" data-action="terminate">
+                    ${t('subscriptions.actions.terminate', 'Terminate')}
+                </button>` : ''}
+                <button class="inline-flex items-center rounded-md border border-rose-200 bg-white px-2 py-0.5 text-[11px] text-rose-600 hover:bg-rose-50" data-action="delete">
+                    ${t('common.delete', 'Delete')}
+                </button>
+            </td>
         `;
+
+        const terminateBtn = tr.querySelector('button[data-action="terminate"]');
+        const deleteBtn = tr.querySelector('button[data-action="delete"]');
+        if (terminateBtn) {
+            terminateBtn.addEventListener('click', () => changeSubscriptionStatus(s.id, 'TERMINATED'));
+        }
+        deleteBtn.addEventListener('click', () => deleteSubscription(s.id));
         tbody.appendChild(tr);
     });
 }
@@ -848,6 +1057,162 @@ function setupEventHandlers() {
 
     const customerSearchInput = document.getElementById('customerSearchInput');
     if (customerSearchInput) customerSearchInput.addEventListener('input', renderCustomersTable);
+
+    // Period switchers for subscriptions chart
+    const growthPills = document.querySelectorAll('.growth-pill');
+    growthPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            const period = pill.getAttribute('data-period') || 'monthly';
+
+            growthPills.forEach(p => {
+                p.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
+                p.classList.add('text-gray-500');
+            });
+            pill.classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
+
+            loadSubscriptionsChart(period);
+        });
+    });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+}
+
+/**
+ * Запрос на смену статуса тарифа.
+ */
+async function changeTariffStatus(id, newStatus) {
+    try {
+        const response = await fetch(`/api/tariffs/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.tariffStatusUpdated', 'Tariff status updated'));
+        await loadTariffs();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to update tariff status: ' + error.message);
+    }
+}
+
+/**
+ * Удаление тарифа.
+ */
+async function deleteTariff(id) {
+    if (!window.confirm(t('confirm.tariffDelete', 'Delete this tariff?'))) return;
+    try {
+        const response = await fetch(`/api/tariffs/${id}`, { method: 'DELETE' });
+        if (!response.ok && response.status !== 204) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.tariffDeleted', 'Tariff deleted'));
+        await loadTariffs();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to delete tariff: ' + error.message);
+    }
+}
+
+/**
+ * Смена статуса клиента.
+ */
+async function changeCustomerStatus(id, newStatus) {
+    try {
+        const response = await fetch(`/api/customers/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.customerStatusUpdated', 'Customer status updated'));
+        await loadCustomers();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to update customer status: ' + error.message);
+    }
+}
+
+/**
+ * Удалить клиента.
+ */
+async function deleteCustomer(id) {
+    if (!window.confirm(t('confirm.customerDelete', 'Delete this customer?'))) return;
+    try {
+        const response = await fetch(`/api/customers/${id}`, { method: 'DELETE' });
+        if (!response.ok && response.status !== 204) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.customerDeleted', 'Customer deleted'));
+        await loadCustomers();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to delete customer: ' + error.message);
+    }
+}
+
+/**
+ * Сменить статус подписки.
+ */
+async function changeSubscriptionStatus(id, newStatus) {
+    try {
+        const response = await fetch(`/api/subscriptions/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!response.ok) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.subscriptionStatusUpdated', 'Subscription status updated'));
+        await loadSubscriptions();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to update subscription status: ' + error.message);
+    }
+}
+
+/**
+ * Удалить подписку.
+ */
+async function deleteSubscription(id) {
+    if (!window.confirm(t('confirm.subscriptionDelete', 'Delete this subscription?'))) return;
+    try {
+        const response = await fetch(`/api/subscriptions/${id}`, { method: 'DELETE' });
+        if (!response.ok && response.status !== 204) {
+            const errorMsg = await parseError(response);
+            showAlert('error', errorMsg);
+            return;
+        }
+        showAlert('success', t('alerts.subscriptionDeleted', 'Subscription deleted'));
+        await loadSubscriptions();
+        await loadRecentActivity();
+        await loadDashboardSummary();
+    } catch (error) {
+        showAlert('error', 'Failed to delete subscription: ' + error.message);
+    }
 }
 
 /**
@@ -928,6 +1293,41 @@ async function loadCurrentUser() {
     }
 }
 
+/**
+ * Performs logout by calling Spring Security /logout endpoint.
+ */
+async function logout() {
+    try {
+        await fetch('/logout', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+    } finally {
+        window.location.href = '/login?logout';
+    }
+}
+
+/**
+ * Formats given date as "x min ago" / "x h ago" etc.
+ */
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const sec = Math.floor(diffMs / 1000);
+    const min = Math.floor(sec / 60);
+    const hours = Math.floor(min / 60);
+    const days = Math.floor(hours / 24);
+
+    if (sec < 60) return t('time.justNow', 'just now');
+    if (min < 60) {
+        return t('time.minutesAgo', '{n} min ago').replace('{n}', String(min));
+    }
+    if (hours < 24) {
+        return t('time.hoursAgo', '{n} h ago').replace('{n}', String(hours));
+    }
+    return t('time.daysAgo', '{n} d ago').replace('{n}', String(days));
+}
+
 // Initialize admin panel when DOM is ready.
 document.addEventListener('DOMContentLoaded', () => {
     setupSidebarNavigation();
@@ -937,7 +1337,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial loads: dashboard + chart + base lists for selects.
     loadDashboardSummary();
-    loadSubscriptionsChart();
+    loadSubscriptionsChart('monthly');
+    loadRecentActivity();
     loadTariffs().then(populateSubscriptionDropdowns);
     loadCustomers();
     loadCurrentUser();

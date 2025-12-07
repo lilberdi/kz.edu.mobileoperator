@@ -116,6 +116,13 @@
                             <span data-i18n-key="nav.help">Help &amp; Support</span>
                         </button>
                     </li>
+                    <li class="pt-2 border-t border-gray-100">
+                        <button id="logoutBtn"
+                                class="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700">
+                            <i data-feather="log-out" class="h-4 w-4"></i>
+                            <span data-i18n-key="nav.logout">Logout</span>
+                        </button>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -263,63 +270,8 @@
                                     View all
                                 </a>
                             </div>
-                            <ul class="space-y-3 text-sm">
-                                <li class="flex items-start space-x-3">
-                                    <span
-                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50">
-                                        <i data-feather="user-plus" class="h-3 w-3 text-indigo-600"></i>
-                                    </span>
-                                    <div>
-                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item1.title">
-                                            New customer Aidana K. created
-                                        </p>
-                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item1.time">
-                                            10 minutes ago
-                                        </p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start space-x-3">
-                                    <span
-                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50">
-                                        <i data-feather="edit-3" class="h-3 w-3 text-amber-600"></i>
-                                    </span>
-                                    <div>
-                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item2.title">
-                                            Tariff START_10 updated
-                                        </p>
-                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item2.time">
-                                            45 minutes ago
-                                        </p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start space-x-3">
-                                    <span
-                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50">
-                                        <i data-feather="repeat" class="h-3 w-3 text-emerald-600"></i>
-                                    </span>
-                                    <div>
-                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item3.title">
-                                            New subscription for Aslan B.
-                                        </p>
-                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item3.time">
-                                            2 hours ago
-                                        </p>
-                                    </div>
-                                </li>
-                                <li class="flex items-start space-x-3">
-                                    <span
-                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-50">
-                                        <i data-feather="credit-card" class="h-3 w-3 text-sky-600"></i>
-                                    </span>
-                                    <div>
-                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item4.title">
-                                            Payment received from Marat S.
-                                        </p>
-                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item4.time">
-                                            5 hours ago
-                                        </p>
-                                    </div>
-                                </li>
+                            <ul class="space-y-3 text-sm" id="recentActivityList">
+                                <!-- Filled dynamically from /api/dashboard/recent-activity -->
                             </ul>
                         </div>
                     </div>
@@ -455,6 +407,8 @@
                                             data-i18n-key="tariffs.table.gb">GB</th>
                                         <th class="px-3 py-2 text-left font-semibold text-gray-600"
                                             data-i18n-key="tariffs.table.status">Status</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.actions">Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100" id="tariffsTableBody">
@@ -562,6 +516,8 @@
                                             data-i18n-key="customers.table.phone">Phone</th>
                                         <th class="px-3 py-2 text-left font-semibold text-gray-600"
                                             data-i18n-key="customers.table.status">Status</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-600"
+                                            data-i18n-key="customers.table.actions">Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100" id="customersTableBody">
@@ -646,6 +602,8 @@
                                             data-i18n-key="subscriptions.table.status">Status</th>
                                         <th class="px-3 py-2 text-left font-semibold text-gray-600"
                                             data-i18n-key="subscriptions.table.balance">Balance</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.actions">Actions</th>
                                     </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-100" id="subscriptionsTableBody">

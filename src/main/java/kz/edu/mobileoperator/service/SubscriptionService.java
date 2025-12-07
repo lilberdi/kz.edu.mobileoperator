@@ -3,6 +3,7 @@ package kz.edu.mobileoperator.service;
 import java.math.BigDecimal;
 import java.util.List;
 import kz.edu.mobileoperator.model.Subscription;
+import kz.edu.mobileoperator.model.SubscriptionStatus;
 
 /**
  * Сервисный слой для работы с подписками клиентов на тарифы.
@@ -34,6 +35,16 @@ public interface SubscriptionService {
      * Получить список всех подписок.
      */
     List<Subscription> getAll();
+
+    /**
+     * Обновить статус подписки (ACTIVE/SUSPENDED/TERMINATED).
+     */
+    Subscription updateStatus(Long id, SubscriptionStatus status);
+
+    /**
+     * Удалить подписку.
+     */
+    void deleteById(Long id);
 }
 
 
