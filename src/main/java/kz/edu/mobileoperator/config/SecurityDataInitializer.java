@@ -9,44 +9,41 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Инициализирует в базе двух пользователей (admin и user) при первом запуске.
+ * Инициализирует/обновляет в базе двух demo‑пользователей:
+ * admin/password (роль ADMIN) и user/password (роль USER).
  */
 @Configuration
 public class SecurityDataInitializer {
 
     @Bean
     public CommandLineRunner initDefaultUsers(UserAccountRepository userAccountRepository,
-                                             PasswordEncoder passwordEncoder) {
+                                              PasswordEncoder passwordEncoder) {
         return args -> {
             // Каждый запуск приложения синхронизируем demo‑пользователей
             // с заранее известными логином/паролем: admin/password и user/password.
-            userAccountRepository.findByUsername("admin")
-                    .map(existing -> {
-                        existing.setPassword(passwordEncoder.encode("password"));
-                        existing.setRole(UserRole.ADMIN);
-                        existing.setEnabled(true);
-                        return existing;
-                    })
+            UserAccount admin = userAccountRepository.findByUsername("admin")
                     .orElseGet(() -> new UserAccount(
                             "admin",
                             passwordEncoder.encode("password"),
                             UserRole.ADMIN,
                             true
                     ));
+            admin.setPassword(passwordEncoder.encode("password"));
+            admin.setRole(UserRole.ADMIN);
+            admin.setEnabled(true);
+            userAccountRepository.save(admin);
 
-            userAccountRepository.findByUsername("user")
-                    .map(existing -> {
-                        existing.setPassword(passwordEncoder.encode("password"));
-                        existing.setRole(UserRole.USER);
-                        existing.setEnabled(true);
-                        return existing;
-                    })
+            UserAccount user = userAccountRepository.findByUsername("user")
                     .orElseGet(() -> new UserAccount(
                             "user",
                             passwordEncoder.encode("password"),
                             UserRole.USER,
                             true
                     ));
+            user.setPassword(passwordEncoder.encode("password"));
+            user.setRole(UserRole.USER);
+            user.setEnabled(true);
+            userAccountRepository.save(user);
         };
     }
 }
