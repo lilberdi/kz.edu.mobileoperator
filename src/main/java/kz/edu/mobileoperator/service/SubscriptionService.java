@@ -1,6 +1,7 @@
 package kz.edu.mobileoperator.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import kz.edu.mobileoperator.model.Subscription;
 
 /**
@@ -28,6 +29,11 @@ public interface SubscriptionService {
      * В простой реализации он равен абонентской плате тарифа.
      */
     BigDecimal calculateMonthlyCharge(Long subscriptionId);
+
+    /**
+     * Получить список всех подписок.
+     */
+    List<Subscription> getAll();
 }
 
 

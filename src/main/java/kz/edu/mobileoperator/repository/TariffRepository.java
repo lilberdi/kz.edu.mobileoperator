@@ -14,6 +14,8 @@ public interface TariffRepository extends JpaRepository<Tariff, Long> {
 
     List<Tariff> findByStatus(TariffStatus status);
 
+    long countByStatus(TariffStatus status);
+
     boolean existsByCode(String code);
 }
 

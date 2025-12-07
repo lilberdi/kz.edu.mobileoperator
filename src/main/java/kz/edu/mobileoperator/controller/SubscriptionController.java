@@ -1,6 +1,7 @@
 package kz.edu.mobileoperator.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import kz.edu.mobileoperator.dto.MonthlyChargeResponseDto;
 import kz.edu.mobileoperator.dto.SubscriptionChangeTariffRequestDto;
 import kz.edu.mobileoperator.dto.SubscriptionConnectRequestDto;
@@ -29,6 +30,17 @@ public class SubscriptionController {
                                   SubscriptionMapper subscriptionMapper) {
         this.subscriptionService = subscriptionService;
         this.subscriptionMapper = subscriptionMapper;
+    }
+
+    /**
+     * Получить список всех подписок.
+     */
+    @GetMapping
+    public List<SubscriptionResponseDto> getSubscriptions() {
+        List<Subscription> subscriptions = subscriptionService.getAll();
+        return subscriptions.stream()
+                .map(subscriptionMapper::toDto)
+                .toList();
     }
 
     /**

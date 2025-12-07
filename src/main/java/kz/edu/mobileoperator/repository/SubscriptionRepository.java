@@ -14,6 +14,10 @@ import org.springframework.stereotype.Repository;
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
     List<Subscription> findByCustomerAndStatus(Customer customer, SubscriptionStatus status);
+
+    List<Subscription> findByStatus(SubscriptionStatus status);
+
+    long countByStatus(SubscriptionStatus status);
 }
 
 

@@ -2,6 +2,7 @@ package kz.edu.mobileoperator.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import kz.edu.mobileoperator.exception.BusinessException;
 import kz.edu.mobileoperator.exception.ResourceNotFoundException;
 import kz.edu.mobileoperator.model.Customer;
@@ -98,6 +99,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Subscription subscription = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with id=" + subscriptionId));
         return subscription.getTariff().getMonthlyFee();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Subscription> getAll() {
+        return subscriptionRepository.findAll();
     }
 }
 

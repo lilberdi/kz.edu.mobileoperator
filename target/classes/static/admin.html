@@ -2,216 +2,673 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mobile Operator Admin Panel</title>
-    <!-- Bootstrap CSS via CDN for quick layout -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <style>
-        body {
-            padding-top: 60px;
-        }
-        .tab-section {
-            display: none;
-        }
-        .tab-section.active {
-            display: block;
-        }
-    </style>
+    <title>Zolik Mobile Operator Admin Panel</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Optional: Heroicons/Feather icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Chart.js for dashboard charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Optional: phone input masking library (can also be done manually) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-900">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Mobile Operator Admin Panel</span>
+<div class="min-h-screen flex flex-col">
+    <!-- Top navbar -->
+    <header class="sticky top-0 z-40 bg-white shadow-sm">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold">
+                        Z
+                    </div>
+                    <div>
+                        <div class="text-sm font-semibold text-gray-900" data-i18n-key="brand.name">Zolik</div>
+                        <div class="text-xs text-gray-500" data-i18n-key="brand.subtitle">Mobile Operator Admin Panel</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Language switcher -->
+                    <div class="hidden sm:flex items-center space-x-1 text-xs font-medium text-gray-500">
+                        <button type="button" class="lang-switch px-1.5 py-0.5 rounded hover:text-indigo-600"
+                                data-lang="en">EN
+                        </button>
+                        <span class="text-gray-300">|</span>
+                        <button type="button" class="lang-switch px-1.5 py-0.5 rounded hover:text-indigo-600"
+                                data-lang="ru">RU
+                        </button>
+                        <span class="text-gray-300">|</span>
+                        <button type="button" class="lang-switch px-1.5 py-0.5 rounded hover:text-indigo-600"
+                                data-lang="kk">KK
+                        </button>
+                    </div>
+
+                    <button class="hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+                        <i data-feather="settings" class="mr-1 h-4 w-4"></i>
+                        <span data-i18n-key="nav.settings">Settings</span>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <i data-feather="user" class="h-4 w-4 text-indigo-600"></i>
+                        </div>
+                        <div class="hidden sm:block">
+                            <div class="text-xs text-gray-500" data-i18n-key="user.signedInAs">Signed in as</div>
+                            <div class="text-sm font-medium text-gray-900" id="currentUserName">Administrator</div>
+                            <div class="text-[11px] text-gray-500" id="currentUserRole">ROLE_ADMIN</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="hidden md:flex md:w-64 md:flex-col md:border-r md:border-gray-200 bg-white">
+            <nav class="flex-1 px-3 py-6">
+                <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3" data-i18n-key="sidebar.mainNav">
+                    Main navigation
+                </p>
+                <ul class="space-y-1">
+                    <li>
+                        <button
+                                class="sidebar-link flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-indigo-700 bg-indigo-50 border-l-4 border-indigo-500"
+                                data-section="dashboardSection">
+                            <i data-feather="grid" class="h-4 w-4 text-indigo-500"></i>
+                            <span data-i18n-key="nav.dashboard">Dashboard</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                                class="sidebar-link flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                data-section="tariffsSection">
+                            <i data-feather="layers" class="h-4 w-4 text-gray-400"></i>
+                            <span data-i18n-key="nav.tariffs">Tariffs</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                                class="sidebar-link flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                data-section="customersSection">
+                            <i data-feather="users" class="h-4 w-4 text-gray-400"></i>
+                            <span data-i18n-key="nav.customers">Customers</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                                class="sidebar-link flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                data-section="subscriptionsSection">
+                            <i data-feather="repeat" class="h-4 w-4 text-gray-400"></i>
+                            <span data-i18n-key="nav.subscriptions">Subscriptions</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <p class="mt-6 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3" data-i18n-key="sidebar.other">
+                    Other
+                </p>
+                <ul class="space-y-1">
+                    <li>
+                        <button
+                                class="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-left text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-900">
+                            <i data-feather="help-circle" class="h-4 w-4 text-gray-400"></i>
+                            <span data-i18n-key="nav.help">Help &amp; Support</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Mobile sidebar (simple horizontal nav) -->
+        <aside class="md:hidden border-b border-gray-200 bg-white">
+            <nav class="flex overflow-x-auto px-3 py-2 space-x-2">
+                <button
+                        class="sidebar-link inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200"
+                        data-section="dashboardSection">
+                    <span data-i18n-key="nav.dashboard">Dashboard</span>
+                </button>
+                <button
+                        class="sidebar-link inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50"
+                        data-section="tariffsSection">
+                    <span data-i18n-key="nav.tariffs">Tariffs</span>
+                </button>
+                <button
+                        class="sidebar-link inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50"
+                        data-section="customersSection">
+                    <span data-i18n-key="nav.customers">Customers</span>
+                </button>
+                <button
+                        class="sidebar-link inline-flex items-center rounded-full px-3 py-1 text-xs font-medium text-gray-600 bg-gray-50"
+                        data-section="subscriptionsSection">
+                    <span data-i18n-key="nav.subscriptions">Subscriptions</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1">
+            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+
+                <!-- Alert container -->
+                <div id="alert-container" class="space-y-2 mb-4"></div>
+
+                <!-- Dashboard Section -->
+                <section id="dashboardSection" class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900" data-i18n-key="dashboard.title">
+                                Dashboard Overview
+                            </h1>
+                            <p class="mt-1 text-sm text-gray-500">
+                                <span data-i18n-key="dashboard.subtitle">High-level metrics for Zolik mobile operator.</span>
+                            </p>
+                        </div>
+                            <div class="text-right text-xs text-gray-500">
+                                <div data-i18n-key="dashboard.lastUpdated">Last updated:</div>
+                            <div id="dashboardLastUpdated" class="font-medium text-gray-700">—</div>
+                        </div>
+                    </div>
+
+                    <!-- Stats cards -->
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="rounded-xl bg-white p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"
+                                   data-i18n-key="dashboard.totalCustomers">Total Customers</p>
+                                <span class="rounded-full bg-indigo-50 p-2">
+                                    <i data-feather="users" class="h-4 w-4 text-indigo-600"></i>
+                                </span>
+                            </div>
+                            <p id="totalCustomersValue" class="mt-3 text-2xl font-semibold text-gray-900">—</p>
+                            <p class="mt-1 text-xs text-emerald-600">+12% from last month</p>
+                        </div>
+
+                        <div class="rounded-xl bg-white p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"
+                                   data-i18n-key="dashboard.activeTariffs">Active Tariffs</p>
+                                <span class="rounded-full bg-indigo-50 p-2">
+                                    <i data-feather="layers" class="h-4 w-4 text-indigo-600"></i>
+                                </span>
+                            </div>
+                            <p id="activeTariffsValue" class="mt-3 text-2xl font-semibold text-gray-900">—</p>
+                            <p class="mt-1 text-xs text-emerald-600">+2 new this month</p>
+                        </div>
+
+                        <div class="rounded-xl bg-white p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"
+                                   data-i18n-key="dashboard.activeSubscriptions">Active Subscriptions</p>
+                                <span class="rounded-full bg-indigo-50 p-2">
+                                    <i data-feather="repeat" class="h-4 w-4 text-indigo-600"></i>
+                                </span>
+                            </div>
+                            <p id="activeSubscriptionsValue" class="mt-3 text-2xl font-semibold text-gray-900">—</p>
+                            <p class="mt-1 text-xs text-emerald-600">+8% from last month</p>
+                        </div>
+
+                        <div class="rounded-xl bg-white p-4 shadow-sm flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide"
+                                   data-i18n-key="dashboard.monthlyRevenue">Monthly Revenue</p>
+                                <span class="rounded-full bg-green-50 p-2">
+                                    <i data-feather="dollar-sign" class="h-4 w-4 text-green-600"></i>
+                                </span>
+                            </div>
+                            <p id="monthlyRevenueValue" class="mt-3 text-2xl font-semibold text-gray-900">—</p>
+                            <p class="mt-1 text-xs text-emerald-600">+4.5% from last month</p>
+                        </div>
+                    </div>
+
+                    <!-- Growth + Recent activity -->
+                    <div class="grid gap-4 lg:grid-cols-3">
+                        <div class="lg:col-span-2 rounded-xl bg-white p-5 shadow-sm flex flex-col">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-sm font-semibold text-gray-900" data-i18n-key="dashboard.subsGrowthTitle">
+                                        Subscriptions Growth
+                                    </h2>
+                                    <p class="text-xs text-gray-500" data-i18n-key="dashboard.subsGrowthSubtitle">
+                                        Track overall growth of active subscriptions.
+                                    </p>
+                                </div>
+                                <div class="inline-flex items-center rounded-full bg-gray-100 p-1 text-xs font-medium">
+                                    <button class="growth-pill active rounded-full bg-white px-3 py-1 shadow-sm text-indigo-600"
+                                            data-period="monthly" data-i18n-key="dashboard.periodMonthly">
+                                        Monthly
+                                    </button>
+                                    <button class="growth-pill rounded-full px-3 py-1 text-gray-500"
+                                            data-period="quarterly" data-i18n-key="dashboard.periodQuarterly">
+                                        Quarterly
+                                    </button>
+                                    <button class="growth-pill rounded-full px-3 py-1 text-gray-500"
+                                            data-period="yearly" data-i18n-key="dashboard.periodYearly">
+                                        Yearly
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                                <canvas id="subscriptionsChart" class="w-full h-52"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl bg-white p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <h2 class="text-sm font-semibold text-gray-900" data-i18n-key="dashboard.recentActivity">
+                                    Recent Activity
+                                </h2>
+                                <a href="#" class="text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                                   data-i18n-key="dashboard.viewAll">
+                                    View all
+                                </a>
+                            </div>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start space-x-3">
+                                    <span
+                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-indigo-50">
+                                        <i data-feather="user-plus" class="h-3 w-3 text-indigo-600"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item1.title">
+                                            New customer Aidana K. created
+                                        </p>
+                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item1.time">
+                                            10 minutes ago
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span
+                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-50">
+                                        <i data-feather="edit-3" class="h-3 w-3 text-amber-600"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item2.title">
+                                            Tariff START_10 updated
+                                        </p>
+                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item2.time">
+                                            45 minutes ago
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span
+                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50">
+                                        <i data-feather="repeat" class="h-3 w-3 text-emerald-600"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item3.title">
+                                            New subscription for Aslan B.
+                                        </p>
+                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item3.time">
+                                            2 hours ago
+                                        </p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start space-x-3">
+                                    <span
+                                            class="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-50">
+                                        <i data-feather="credit-card" class="h-3 w-3 text-sky-600"></i>
+                                    </span>
+                                    <div>
+                                        <p class="font-medium text-gray-900" data-i18n-key="activity.item4.title">
+                                            Payment received from Marat S.
+                                        </p>
+                                        <p class="text-xs text-gray-500" data-i18n-key="activity.item4.time">
+                                            5 hours ago
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tariffs Section -->
+                <section id="tariffsSection" class="space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900" data-i18n-key="tariffs.title">Tariffs</h1>
+                            <p class="mt-1 text-sm text-gray-500">
+                                <span data-i18n-key="tariffs.subtitle">Create and manage Zolik mobile tariffs.</span>
+                            </p>
+                        </div>
+                        <button id="scrollToTariffFormBtn"
+                                class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                            <i data-feather="plus" class="mr-2 h-4 w-4"></i>
+                            Create new tariff
+                        </button>
+                    </div>
+
+                    <div class="grid gap-6 lg:grid-cols-3">
+                        <!-- Create Tariff -->
+                        <div class="lg:col-span-1 rounded-xl bg-white p-5 shadow-sm" id="tariffFormCard">
+                            <h2 class="text-sm font-semibold text-gray-900 mb-4" data-i18n-key="tariffs.createTitle">
+                                Create Tariff
+                            </h2>
+                            <form id="tariffForm" class="space-y-4">
+                                <div>
+                                    <label for="tariffCode" class="block text-xs font-medium text-gray-700"
+                                           data-i18n-key="tariffs.form.code">Tariff code</label>
+                                    <input id="tariffCode" type="text"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="START_10" data-i18n-placeholder="tariffs.form.codePlaceholder">
+                                </div>
+                                <div>
+                                    <label for="tariffName" class="block text-xs font-medium text-gray-700"
+                                           data-i18n-key="tariffs.form.name">Tariff name</label>
+                                    <input id="tariffName" type="text"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="Zolik Start 10 GB"
+                                           data-i18n-placeholder="tariffs.form.namePlaceholder">
+                                </div>
+                                <div>
+                                    <label for="tariffMonthlyFee"
+                                           class="block text-xs font-medium text-gray-700">Monthly fee (₸)</label>
+                                    <input id="tariffMonthlyFee" type="number" step="0.01"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="4990" data-i18n-placeholder="tariffs.form.feePlaceholder">
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label for="tariffMinutes"
+                                               class="block text-xs font-medium text-gray-700"
+                                               data-i18n-key="tariffs.form.minutes">Minutes</label>
+                                        <input id="tariffMinutes" type="number"
+                                               class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                               placeholder="500">
+                                    </div>
+                                    <div>
+                                        <label for="tariffSms"
+                                               class="block text-xs font-medium text-gray-700"
+                                               data-i18n-key="tariffs.form.sms">SMS</label>
+                                        <input id="tariffSms" type="number"
+                                               class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                               placeholder="100">
+                                    </div>
+                                    <div>
+                                        <label for="tariffGb"
+                                               class="block text-xs font-medium text-gray-700"
+                                               data-i18n-key="tariffs.form.gb">GB</label>
+                                        <input id="tariffGb" type="number"
+                                               class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                               placeholder="10">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end space-x-2 pt-2">
+                                    <button type="button" id="createTariffBtn"
+                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
+                                            data-i18n-key="tariffs.form.saveBtn">
+                                        Save tariff
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Tariff List -->
+                        <div class="lg:col-span-2 rounded-xl bg-white p-5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                                <h2 class="text-sm font-semibold text-gray-900" data-i18n-key="tariffs.listTitle">
+                                    Tariff list
+                                </h2>
+                                <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+                                    <div class="relative">
+                                        <span
+                                                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+                                            <i data-feather="search" class="h-4 w-4 text-gray-400"></i>
+                                        </span>
+                                        <input id="tariffSearchInput" type="text"
+                                               class="block w-full rounded-md border border-gray-300 pl-7 pr-3 py-1.5 text-xs placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+                                               placeholder="Search tariffs..."
+                                               data-i18n-placeholder="tariffs.searchPlaceholder">
+                                    </div>
+                                    <select id="tariffStatusFilter"
+                                            class="rounded-md border border-gray-300 py-1.5 pl-2 pr-8 text-xs text-gray-700 focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="" data-i18n-key="tariffs.filter.all">All statuses</option>
+                                        <option value="ACTIVE" data-i18n-key="tariffs.filter.active">Active</option>
+                                        <option value="ARCHIVED" data-i18n-key="tariffs.filter.archived">Archived</option>
+                                    </select>
+                                    <button id="loadTariffsBtn"
+                                            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                        <i data-feather="refresh-cw" class="mr-1 h-3 w-3"></i>
+                                        <span data-i18n-key="tariffs.loadBtn">Load tariffs</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 text-xs" id="tariffsTable">
+                                    <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.code">Code</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.name">Name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.fee">Monthly fee</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.minutes">Minutes</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.sms">SMS</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.gb">GB</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="tariffs.table.status">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100" id="tariffsTableBody">
+                                    <!-- Filled by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customers Section -->
+                <section id="customersSection" class="space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900" data-i18n-key="customers.title">
+                                Customers
+                            </h1>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Manage Zolik subscribers.
+                            </p>
+                        </div>
+                        <button id="scrollToCustomerFormBtn"
+                                class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                            <i data-feather="user-plus" class="mr-2 h-4 w-4"></i>
+                            Create customer
+                        </button>
+                    </div>
+
+                    <div class="grid gap-6 lg:grid-cols-3">
+                        <!-- Create Customer -->
+                        <div class="lg:col-span-1 rounded-xl bg-white p-5 shadow-sm" id="customerFormCard">
+                            <h2 class="text-sm font-semibold text-gray-900 mb-4"
+                                data-i18n-key="customers.createTitle">Create Customer</h2>
+                            <form id="customerForm" class="space-y-4">
+                                <div>
+                                    <label for="customerFullName"
+                                           class="block text-xs font-medium text-gray-700">Full name</label>
+                                    <input id="customerFullName" type="text"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="Aidana Kurmanbek"
+                                           data-i18n-placeholder="customers.form.namePlaceholder">
+                                </div>
+                                <div>
+                                    <label for="customerPhoneNumber"
+                                           class="block text-xs font-medium text-gray-700"
+                                           data-i18n-key="customers.form.phone">Phone number</label>
+                                    <input id="customerPhoneNumber" type="text"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="+7 (777) 000-00-00"
+                                           data-i18n-placeholder="customers.form.phonePlaceholder">
+                                </div>
+                                <div>
+                                    <label for="customerDocumentNumber"
+                                           class="block text-xs font-medium text-gray-700">Document number</label>
+                                    <input id="customerDocumentNumber" type="text"
+                                           class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                           placeholder="ID1234567"
+                                           data-i18n-placeholder="customers.form.documentPlaceholder">
+                                </div>
+                                <div class="flex justify-end space-x-2 pt-2">
+                                    <button type="button" id="createCustomerBtn"
+                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
+                                            data-i18n-key="customers.form.createBtn">
+                                        Create customer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Customer List -->
+                        <div class="lg:col-span-2 rounded-xl bg-white p-5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                                <h2 class="text-sm font-semibold text-gray-900" data-i18n-key="customers.listTitle">
+                                    Customers list
+                                </h2>
+                                <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+                                    <div class="relative">
+                                        <span
+                                                class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2">
+                                            <i data-feather="search" class="h-4 w-4 text-gray-400"></i>
+                                        </span>
+                                        <input id="customerSearchInput" type="text"
+                                               class="block w-full rounded-md border border-gray-300 pl-7 pr-3 py-1.5 text-xs placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
+                                               placeholder="Search by name or phone..."
+                                               data-i18n-placeholder="customers.searchPlaceholder">
+                                    </div>
+                                    <button id="loadCustomersBtn"
+                                            class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                        <i data-feather="refresh-cw" class="mr-1 h-3 w-3"></i>
+                                        <span data-i18n-key="customers.loadBtn">Load customers</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 text-xs" id="customersTable">
+                                    <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="customers.table.id">ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="customers.table.name">Full name</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="customers.table.phone">Phone</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="customers.table.status">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100" id="customersTableBody">
+                                    <!-- Filled by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Subscriptions Section -->
+                <section id="subscriptionsSection" class="space-y-6 hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-semibold text-gray-900"
+                                data-i18n-key="subscriptions.title">Subscriptions</h1>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Link tariffs to customers and manage their active plans.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-6 lg:grid-cols-3">
+                        <!-- Connect Subscription -->
+                        <div class="lg:col-span-1 rounded-xl bg-white p-5 shadow-sm">
+                            <h2 class="text-sm font-semibold text-gray-900 mb-4"
+                                data-i18n-key="subscriptions.connectTitle">Connect Tariff to Customer</h2>
+                            <form id="subscriptionForm" class="space-y-4">
+                                <div>
+                                    <label for="subscriptionCustomerSelect"
+                                           class="block text-xs font-medium text-gray-700"
+                                           data-i18n-key="subscriptions.form.customer">Customer</label>
+                                    <select id="subscriptionCustomerSelect"
+                                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <!-- Filled by JS -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="subscriptionTariffSelect"
+                                           class="block text-xs font-medium text-gray-700"
+                                           data-i18n-key="subscriptions.form.tariff">Tariff</label>
+                                    <select id="subscriptionTariffSelect"
+                                            class="mt-1 block w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <!-- Filled by JS -->
+                                    </select>
+                                </div>
+                                <div class="flex justify-end space-x-2 pt-2">
+                                    <button type="button" id="connectTariffBtn"
+                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-indigo-700"
+                                            data-i18n-key="subscriptions.form.createBtn">
+                                        Create subscription
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Subscriptions list -->
+                        <div class="lg:col-span-2 rounded-xl bg-white p-5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                                <h2 class="text-sm font-semibold text-gray-900"
+                                    data-i18n-key="subscriptions.listTitle">Subscriptions list</h2>
+                                <button id="loadSubscriptionsBtn"
+                                        class="inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                    <i data-feather="refresh-cw" class="mr-1 h-3 w-3"></i>
+                                    Load subscriptions
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 text-xs" id="subscriptionsTable">
+                                    <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.id">ID</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.customer">Customer</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.tariff">Tariff</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.startDate">Start date</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.status">Status</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-600"
+                                            data-i18n-key="subscriptions.table.balance">Balance</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100" id="subscriptionsTableBody">
+                                    <!-- Filled by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
     </div>
-</nav>
-
-<main class="container my-4">
-    <!-- Global message area -->
-    <div id="globalMessage" class="alert d-none" role="alert"></div>
-
-    <!-- Tabs navigation -->
-    <ul class="nav nav-tabs mt-3" id="adminTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tariffs-tab" data-section="tariffsSection" type="button">
-                Tariffs
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="customers-tab" data-section="customersSection" type="button">
-                Customers
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="subscriptions-tab" data-section="subscriptionsSection" type="button">
-                Subscriptions
-            </button>
-        </li>
-    </ul>
-
-    <!-- Tariffs section -->
-    <section id="tariffsSection" class="tab-section active mt-3">
-        <h2>Tariffs</h2>
-
-        <div class="card mb-3">
-            <div class="card-header">Create Tariff</div>
-            <div class="card-body">
-                <form id="tariffForm" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="tariffCode" class="form-label">Code</label>
-                        <input type="text" class="form-control" id="tariffCode" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="tariffName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="tariffName" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="tariffMonthlyFee" class="form-label">Monthly Fee</label>
-                        <input type="number" step="0.01" class="form-control" id="tariffMonthlyFee" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="tariffMinutes" class="form-label">Included Minutes</label>
-                        <input type="number" class="form-control" id="tariffMinutes">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="tariffSms" class="form-label">Included SMS</label>
-                        <input type="number" class="form-control" id="tariffSms">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="tariffGb" class="form-label">Included GB</label>
-                        <input type="number" class="form-control" id="tariffGb">
-                    </div>
-                    <div class="col-12">
-                        <button type="button" id="createTariffBtn" class="btn btn-primary">
-                            Create Tariff
-                        </button>
-                        <button type="button" id="loadTariffsBtn" class="btn btn-secondary ms-2">
-                            Load Tariffs
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">Tariffs List</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm" id="tariffsTable">
-                        <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Name</th>
-                            <th>Monthly Fee</th>
-                            <th>Minutes</th>
-                            <th>SMS</th>
-                            <th>GB</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Filled by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Customers section -->
-    <section id="customersSection" class="tab-section mt-3">
-        <h2>Customers</h2>
-
-        <div class="card mb-3">
-            <div class="card-header">Create Customer</div>
-            <div class="card-body">
-                <form id="customerForm" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="customerFullName" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="customerFullName" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="customerPhoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="customerPhoneNumber" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="customerDocumentNumber" class="form-label">Document Number</label>
-                        <input type="text" class="form-control" id="customerDocumentNumber" required>
-                    </div>
-                    <div class="col-12">
-                        <button type="button" id="createCustomerBtn" class="btn btn-primary">
-                            Create Customer
-                        </button>
-                        <button type="button" id="loadCustomersBtn" class="btn btn-secondary ms-2">
-                            Load Customers
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">Customers List</div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-sm" id="customersTable">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Full Name</th>
-                            <th>Phone Number</th>
-                            <th>Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- Filled by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Subscriptions section -->
-    <section id="subscriptionsSection" class="tab-section mt-3">
-        <h2>Subscriptions</h2>
-
-        <div class="card mb-3">
-            <div class="card-header">Connect Tariff to Customer</div>
-            <div class="card-body">
-                <form id="subscriptionForm" class="row g-3">
-                    <div class="col-md-6">
-                        <label for="subscriptionCustomerId" class="form-label">Customer ID</label>
-                        <input type="number" class="form-control" id="subscriptionCustomerId" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="subscriptionTariffId" class="form-label">Tariff ID</label>
-                        <input type="number" class="form-control" id="subscriptionTariffId" required>
-                    </div>
-                    <div class="col-12">
-                        <button type="button" id="connectTariffBtn" class="btn btn-primary">
-                            Connect Tariff
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <p class="text-muted">
-            Note: this demo panel only supports connecting tariffs.
-            Other subscription operations (change tariff, terminate, calculate charge)
-            can be tested via tools like Postman.
-        </p>
-    </section>
-</main>
-
-<!-- Bootstrap JS (optional, used only for styles; our logic is in admin.js) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+</div>
 
 <!-- Our admin panel logic -->
-<script src="admin.js" defer></script>
+<script src="admin.js"></script>
+<script>
+    // Initialize Feather icons
+    if (window.feather) {
+        window.feather.replace();
+    }
+</script>
 
 </body>
 </html>
