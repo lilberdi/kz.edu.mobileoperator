@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: mobile-operator-db
+    environment:
+      POSTGRES_DB: mobile_operator_db
+      POSTGRES_USER: mobile_operator
+      POSTGRES_PASSWORD: mobile_operator
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - mobile-operator-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobile-operator-app
+    depends_on:
+      - db
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mobile_operator_db
+      SPRING_DATASOURCE_USERNAME: mobile_operator
+      SPRING_DATASOURCE_PASSWORD: mobile_operator
+    networks:
+      - mobile-operator-net
+
+volumes:
+  db_data:
+
+networks:
+  mobile-operator-net:
+    driver: bridge
+
+

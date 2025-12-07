@@ -3,9 +3,9 @@ spring:
     name: mobile-operator-tariff-management
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mobile_operator_db
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://db:5432/mobile_operator_db
+    username: mobile_operator
+    password: mobile_operator
     driver-class-name: org.postgresql.Driver
 
   jpa:
