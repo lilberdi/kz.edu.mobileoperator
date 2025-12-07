@@ -18,24 +18,35 @@ public class SecurityDataInitializer {
     public CommandLineRunner initDefaultUsers(UserAccountRepository userAccountRepository,
                                              PasswordEncoder passwordEncoder) {
         return args -> {
-            if (!userAccountRepository.existsByUsername("admin")) {
-                UserAccount admin = new UserAccount(
-                        "admin",
-                        passwordEncoder.encode("password"),
-                        UserRole.ADMIN,
-                        true
-                );
-                userAccountRepository.save(admin);
-            }
-            if (!userAccountRepository.existsByUsername("user")) {
-                UserAccount user = new UserAccount(
-                        "user",
-                        passwordEncoder.encode("password"),
-                        UserRole.USER,
-                        true
-                );
-                userAccountRepository.save(user);
-            }
+            // Каждый запуск приложения синхронизируем demo‑пользователей
+            // с заранее известными логином/паролем: admin/password и user/password.
+            userAccountRepository.findByUsername("admin")
+                    .map(existing -> {
+                        existing.setPassword(passwordEncoder.encode("password"));
+                        existing.setRole(UserRole.ADMIN);
+                        existing.setEnabled(true);
+                        return existing;
+                    })
+                    .orElseGet(() -> new UserAccount(
+                            "admin",
+                            passwordEncoder.encode("password"),
+                            UserRole.ADMIN,
+                            true
+                    ));
+
+            userAccountRepository.findByUsername("user")
+                    .map(existing -> {
+                        existing.setPassword(passwordEncoder.encode("password"));
+                        existing.setRole(UserRole.USER);
+                        existing.setEnabled(true);
+                        return existing;
+                    })
+                    .orElseGet(() -> new UserAccount(
+                            "user",
+                            passwordEncoder.encode("password"),
+                            UserRole.USER,
+                            true
+                    ));
         };
     }
 }
